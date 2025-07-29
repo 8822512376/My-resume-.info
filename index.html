@@ -1,0 +1,269 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume</title>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: "Times New Roman", serif;
+      background: #f5f5f5;
+    }.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+.form-section, .resume {
+  background: white;
+  padding: 20px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+input, textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 5px 5px 10px 0;
+  cursor: pointer;
+}
+
+.resume {
+  margin-top: 40px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #003b2f;
+  padding-bottom: 10px;
+}
+
+.photo {
+  width: 120px;
+  height: 150px;
+  border: 1px solid black;
+  object-fit: cover;
+}
+
+.section-title {
+  background-color: #003b2f;
+  color: white;
+  padding: 5px 10px;
+  font-weight: bold;
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 6px;
+  text-align: left;
+}
+
+.signature {
+  text-align: right;
+  margin-top: 30px;
+  font-weight: bold;
+}
+
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📝 Resume Form</h1>  <div class="form-section">
+    <label>Full Name</label>
+    <input type="text" id="name"><label>Date of Birth</label>
+<input type="date" id="dob">
+
+<label>Mobile</label>
+<input type="tel" id="mobile">
+
+<label>Email</label>
+<input type="email" id="email">
+
+<label>Father's Name</label>
+<input type="text" id="father">
+
+<label>Mother's Name</label>
+<input type="text" id="mother">
+
+<label>Gender</label>
+<input type="text" id="gender">
+
+<label>Category</label>
+<input type="text" id="category">
+
+<label>Marital Status</label>
+<input type="text" id="marital">
+
+<label>Languages Known</label>
+<input type="text" id="languages">
+
+<label>Hobbies</label>
+<input type="text" id="hobbies">
+
+<label>Address</label>
+<textarea id="address"></textarea>
+
+<label>Objective</label>
+<textarea id="objective"></textarea>
+
+<label>Declaration</label>
+<textarea id="declaration"></textarea>
+
+<label>Upload Photo</label>
+<input type="file" id="photo" accept="image/*" onchange="loadPhoto(event)">
+
+<h3>Add Education</h3>
+<input type="text" id="qual" placeholder="Qualification">
+<input type="text" id="board" placeholder="Board/University">
+<input type="text" id="year" placeholder="Year">
+<input type="text" id="percent" placeholder="Percentage">
+<input type="text" id="division" placeholder="Division">
+<button onclick="addEducation()">➕ Add Row</button>
+
+<button onclick="updateResume()">🔄 Update Preview</button>
+<button onclick="resetForm()">♻️ Reset All</button>
+<button onclick="downloadPDF()">📥 Download as PDF</button>
+
+  </div>  <div class="resume" id="resume">
+    <div class="header">
+      <div>
+        <h2 id="resName">[Your Name]</h2>
+        <p><strong>Mobile:</strong> <span id="resMobile"></span><br>
+           <strong>Email:</strong> <span id="resEmail"></span></p>
+      </div>
+      <img id="resPhoto" class="photo" src="https://via.placeholder.com/120x150.png?text=Photo">
+    </div><div class="section-title">OBJECTIVE</div>
+<p id="resObjective"></p>
+
+<div class="section-title">EDUCATIONAL QUALIFICATIONS</div>
+<table>
+  <thead>
+    <tr>
+      <th>Qualification</th>
+      <th>Board/University</th>
+      <th>Year</th>
+      <th>Percentage</th>
+      <th>Division</th>
+    </tr>
+  </thead>
+  <tbody id="resEducation"></tbody>
+</table>
+
+<div class="section-title">PERSONAL INFORMATION</div>
+<table>
+  <tr><td><strong>Date of Birth</strong></td><td id="resDOB"></td></tr>
+  <tr><td><strong>Father's Name</strong></td><td id="resFather"></td></tr>
+  <tr><td><strong>Mother's Name</strong></td><td id="resMother"></td></tr>
+  <tr><td><strong>Gender</strong></td><td id="resGender"></td></tr>
+  <tr><td><strong>Category</strong></td><td id="resCategory"></td></tr>
+  <tr><td><strong>Marital Status</strong></td><td id="resMarital"></td></tr>
+  <tr><td><strong>Languages Known</strong></td><td id="resLanguages"></td></tr>
+  <tr><td><strong>Hobbies</strong></td><td id="resHobbies"></td></tr>
+  <tr><td><strong>Address</strong></td><td id="resAddress"></td></tr>
+</table>
+
+<div class="section-title">DECLARATION</div>
+<p id="resDeclaration"></p>
+
+<div class="signature" id="resSignature">(Your Name)</div>
+
+  </div>
+</div><script>
+  const fields = ['name','dob','mobile','email','father','mother','gender','category','marital','languages','hobbies','address','objective','declaration'];
+
+  window.onload = () => {
+    fields.forEach(f => {
+      const el = document.getElementById(f);
+      el.value = '';
+      el.addEventListener('input', () => {
+        localStorage.setItem(f, el.value);
+        updateResume();
+      });
+    });
+    updateResume();
+  }
+
+  function updateResume() {
+    document.getElementById('resName').textContent = name.value || '[Your Name]';
+    document.getElementById('resDOB').textContent = dob.value;
+    document.getElementById('resMobile').textContent = mobile.value;
+    document.getElementById('resEmail').textContent = email.value;
+    document.getElementById('resFather').textContent = father.value;
+    document.getElementById('resMother').textContent = mother.value;
+    document.getElementById('resGender').textContent = gender.value;
+    document.getElementById('resCategory').textContent = category.value;
+    document.getElementById('resMarital').textContent = marital.value;
+    document.getElementById('resLanguages').textContent = languages.value;
+    document.getElementById('resHobbies').textContent = hobbies.value;
+    document.getElementById('resAddress').textContent = address.value;
+    document.getElementById('resObjective').textContent = objective.value;
+    document.getElementById('resDeclaration').textContent = declaration.value;
+    document.getElementById('resSignature').textContent = `(${name.value || 'Your Name'})`;
+  }
+
+  function loadPhoto(event) {
+    const output = document.getElementById('resPhoto');
+    output.src = URL.createObjectURL(event.target.files[0]);
+  }
+
+  function addEducation() {
+    const tbody = document.getElementById('resEducation');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${qual.value}</td>
+      <td>${board.value}</td>
+      <td>${year.value}</td>
+      <td>${percent.value}</td>
+      <td>${division.value}</td>`;
+    tbody.appendChild(row);
+    qual.value = board.value = year.value = percent.value = division.value = '';
+  }
+
+  async function downloadPDF() {
+    const resume = document.getElementById("resume");
+    const canvas = await html2canvas(resume, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save("resume.pdf");
+  }
+
+  function resetForm() {
+    fields.forEach(f => {
+      document.getElementById(f).value = '';
+      localStorage.removeItem(f);
+    });
+    document.getElementById('resEducation').innerHTML = '';
+    updateResume();
+  }
+</script></body>
+</html>
